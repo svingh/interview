@@ -18,7 +18,6 @@ const InterviewCard = ({interviewID, userId, role,
                         <p className='badge-text'>{normalizedType}</p>
                     </div>
 
-                    <Image src={getRandomInterviewCover()}/>
                 </div>
             </div>
         </div>
