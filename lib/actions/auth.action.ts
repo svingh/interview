@@ -1,6 +1,7 @@
 'use server';
 
 import { auth, db } from "@/Firebase/admin";
+import { Session } from "inspector/promises";
 import { cookies } from "next/headers";
 
 const SESSION_DURATION = 60 * 60 * 24 * 7;
@@ -40,6 +41,11 @@ export async function signUp(params: SignUpParams){
             name, email
         })
 
+        return{
+            success: true,
+            message: 'account created'
+        }
+
     } catch(e: any){
         console.error('error creating a user', e);
 
@@ -56,4 +62,65 @@ export async function signUp(params: SignUpParams){
         }
     }
 
+}
+
+export async function signIn(params: SignInParams) {
+    const {email, idToken} = params;
+    try{
+        const userRecords = await auth.getUserByEmail(email);
+
+        if(!userRecords){
+            return{
+                success: false,
+                message: 'user does not exist, create an account instead?'
+            }
+        }
+
+        await setSessionCookie(idToken);
+
+    } catch(e){
+        console.log(e);
+
+        return{
+            success: false,
+            message: 'Failed to login'
+
+        }
+    }    
+}
+
+export async function getCurrentuser(): Promise<User |null> {
+    const cookieStore= await cookies();
+
+    const sessionCookie = cookieStore.get('session')?.value;
+
+    if(!sessionCookie) return null;
+
+    try {
+        const decodedClaims = await auth.verifySessionCookie(sessionCookie, true);
+    
+        // get user info from db
+        const userRecord = await db
+          .collection("users")
+          .doc(decodedClaims.uid)
+          .get();
+        if (!userRecord.exists) return null;
+    
+        return {
+          ...userRecord.data(),
+          id: userRecord.id,
+        } as User;
+      } catch (error) {
+        console.log(error);
+    
+        // Invalid or expired session
+        return null;
+      }
+    }
+    
+    // Check if user is authenticated
+export async function isAuthenticated() {
+  const user = await getCurrentuser();
+  return !!user;
+    
 }
