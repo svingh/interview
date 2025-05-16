@@ -8,7 +8,7 @@ import { getCurrentuser } from "@/lib/actions/auth.action";
 import {
   getInterviewsByUserId,
   getLatestInterviews,
-} from "@/lib/actions/auth.action";
+} from "@/lib/actions/general.action";
 
 async function Home() {
   const user = await getCurrentuser();
@@ -47,7 +47,7 @@ async function Home() {
               <InterviewCard
                 key={interview.id}
                 userId={user?.id}
-                interviewId={interview.id}
+                id={interview.id}
                 role={interview.role}
                 type={interview.type}
                 techstack={interview.techstack}
@@ -69,7 +69,7 @@ async function Home() {
               <InterviewCard
                 key={interview.id}
                 userId={user?.id}
-                interviewId={interview.id}
+                id={interview.id}
                 role={interview.role}
                 type={interview.type}
                 techstack={interview.techstack}
